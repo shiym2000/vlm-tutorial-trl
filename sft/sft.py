@@ -1,4 +1,5 @@
 import json
+import re
 
 import torch
 from datasets import Dataset
@@ -20,6 +21,7 @@ def format_example(example):
     messages = []
     image_idx = 0
     video_idx = 0
+    special_tokens = ["<image>", "<video>"]
 
     for msg in example["messages"]:
         message = {
@@ -28,16 +30,20 @@ def format_example(example):
         }
 
         content = msg["content"]
-        while "<image>" in content:
-            content = content.replace("<image>", "")
-            message["content"].append({"type": "image", "image": example["images"][image_idx]})
-            image_idx = image_idx + 1
-        while "<video>" in content:
-            content = content.replace("<video>", "")
-            message["content"].append({"type": "video", "video": example["videos"][video_idx]})
-            video_idx = video_idx + 1
-        message["content"].append({"type": "text", "text": content.strip()})
+        pattern = '|'.join(map(re.escape, special_tokens))
+        subcontent_list = re.split(f'({pattern})', content)
 
+        for subcontent in subcontent_list:
+            if len(subcontent) == 0:
+                continue
+            if subcontent == "<image>":
+                message["content"].append({"type": "image", "image": example["images"][image_idx]})
+                image_idx = image_idx + 1
+            elif subcontent == "<video>":
+                message["content"].append({"type": "video", "video": example["videos"][video_idx]})
+                video_idx = video_idx + 1
+            else:
+                message["content"].append({"type": "text", "text": subcontent})
         messages.append(message)
 
     return {"messages": messages}
