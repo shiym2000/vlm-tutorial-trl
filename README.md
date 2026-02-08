@@ -23,8 +23,20 @@ pip install torch==2.7.1 torchvision==0.22.1 torchaudio==2.7.1 --index-url https
 pip install flash-attn --no-build-isolation  # bug
 ```
 
-+ [Supervised Fine-Tuning (SFT)](sft/README.md)
-    + Inference (Single GPU)
-    + Training (Single Node, Multi-GPU)
-+ Direct Preference Optimization (DPO)
-+ Group Relative Policy Optimization (GRPO)
+## :rocket: Getting Started
+
+### 1. [Supervised Fine-Tuning (SFT)](sft/README.md)
+
+``` bash
+cd sft
+
+# sft (data format: examples/data_sft_image_train.json)
+bash sft_image.sh
+
+# infer (data format: examples/data_sft_image_test.json)
+bash infer_image.sh
+```
+
+### 2. Direct Preference Optimization (DPO)
+
+### 3. Group Relative Policy Optimization (GRPO)

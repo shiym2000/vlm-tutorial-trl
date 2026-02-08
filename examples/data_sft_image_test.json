@@ -1,0 +1,17 @@
+[
+    {
+        "messages": [
+            {
+                "role": "user",
+                "content": "<image>\nBased on the input of Wood's lamp image, analyze and determine which phase of vitiligo belongs to:\nA. stable stage vitiligo\nB. active stage vitiligo\nPlease answer option A or B directly."
+            },
+            {
+                "role": "assistant",
+                "content": "A"
+            }
+        ],
+        "images": [
+            "path/to/image.jpg"
+        ]
+    }
+]
