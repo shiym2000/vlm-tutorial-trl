@@ -2,13 +2,7 @@
 
 ## Inference (Single GPU)
 
-**Model Inputs and Outputs**
-
-**Data Flow Transformation Pipeline**
-
 ## Training (Single Node, Multi-GPU)
-
-**Training Only**
 
 **Training + Validation**
 
