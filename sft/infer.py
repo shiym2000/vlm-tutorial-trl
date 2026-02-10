@@ -57,7 +57,7 @@ if __name__ == "__main__":
 
     # Start inference
     print(f"[4/5] Starting inference...")
-    streamer = TextStreamer(processor.tokenizer, skip_prompt=True, skip_special_tokens=True)
+    # streamer = TextStreamer(processor.tokenizer, skip_prompt=True, skip_special_tokens=True)
     output_list = []
     for example in tqdm(data_list):
         # init for multi-turn
@@ -84,7 +84,7 @@ if __name__ == "__main__":
                     do_sample=True if args.temperature > 0 else False,
                     num_beams=args.num_beams,
                     temperature=args.temperature,
-                    streamer=streamer,
+                    # streamer=streamer,
                 )
                 generated_ids_trimmed = [
                     out_ids[len(in_ids) :] for in_ids, out_ids in zip(inputs.input_ids, generated_ids)
@@ -95,7 +95,7 @@ if __name__ == "__main__":
                     clean_up_tokenization_spaces=False,
                 )[0]
                 messages.append({"role": "assistant", "content": output_text})
-                # print(f"{output_text}\n")  # not used because of streamer
+                print(f"{output_text}\n")
 
         example["messages_inferred"] = messages
         output_list.append(example)
