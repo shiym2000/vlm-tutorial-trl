@@ -6,7 +6,7 @@ from tqdm import tqdm
 from transformers import (
     AutoProcessor,
     Qwen3VLForConditionalGeneration,
-    TextStreamer,
+    # TextStreamer,
 )
 
 from sft import DataCollatorForSFTQwen3VL
