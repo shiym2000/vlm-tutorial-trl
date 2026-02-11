@@ -78,7 +78,7 @@ if __name__ == "__main__":
                 inputs = inputs.to(model.device)
 
                 print("[assistant]:")
-                generated_ids = model.generate(
+                outputs = model.generate(
                     **inputs,
                     max_new_tokens=args.max_new_tokens,
                     do_sample=True if args.temperature > 0 else False,
@@ -86,6 +86,7 @@ if __name__ == "__main__":
                     temperature=args.temperature,
                     # streamer=streamer,
                 )
+                generated_ids = outputs
                 generated_ids_trimmed = [
                     out_ids[len(in_ids) :] for in_ids, out_ids in zip(inputs.input_ids, generated_ids)
                 ]
