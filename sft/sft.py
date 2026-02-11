@@ -135,7 +135,10 @@ class DataCollatorForSFTQwen3VL:
                 tokenize=False,
                 add_generation_prompt=False if self.mode == "train" else True,
             ))
-            image_inputs, video_inputs = process_vision_info(example["messages"])
+            image_inputs, video_inputs = process_vision_info(
+                example["messages"],
+                image_patch_size=self.processor.image_processor.patch_size,
+            )
             if image_inputs is not None:
                 # images.extend(image_inputs)  # list: PIL.Image.Image, [W, H]
                 for image in image_inputs:
