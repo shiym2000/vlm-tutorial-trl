@@ -19,6 +19,7 @@ if __name__ == "__main__":
     parser.add_argument("--attn_implementation", type=str, default=None)
     parser.add_argument("--dataset_name", type=str, default=None)
     parser.add_argument("--output_path", type=str, default=None)
+    parser.add_argument("--video_size_t", type=int, default=16)
     parser.add_argument("--image_size_h", type=int, default=None)
     parser.add_argument("--image_size_w", type=int, default=None)
     parser.add_argument("--max_length", type=int, default=None)
@@ -50,6 +51,7 @@ if __name__ == "__main__":
     data_collator = DataCollatorForSFTQwen3VL(
         processor=processor,
         mode="infer",
+        video_size_t=args.video_size_t,
         image_size_h=args.image_size_h,
         image_size_w=args.image_size_w,
         max_length=args.max_length,

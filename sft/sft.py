@@ -1,10 +1,13 @@
 import json
 import re
 from dataclasses import dataclass, field
+from PIL import Image
 
 import torch
+import torchvision.transforms.functional as F
 from datasets import Dataset
 from qwen_vl_utils import process_vision_info
+from torchvision.io import read_video
 from transformers import (
     AutoProcessor,
     Qwen3VLForConditionalGeneration,
@@ -21,6 +24,10 @@ from trl import (
 
 @dataclass
 class ScriptArgumentsForSFT(ScriptArguments):
+    video_size_t: int = field(
+        default=16,
+        metadata={"help": "The number of frames to sample from input videos."},
+    )
     image_size_h: int = field(
         default=512,
         metadata={"help": "The height to resize input images to."},
@@ -43,17 +50,54 @@ class ScriptArgumentsForSFT(ScriptArguments):
     )
 
 
+def temporal_resize(
+    video: torch.Tensor,
+    target_T: int,
+    method: str,
+) -> torch.Tensor:
+    """
+    将 (T, C, H, W) 的张量在时间维调整到 target_T。
+
+    参数
+    ----
+    video     : Tensor  (T, C, H, W)
+    target_T  : int     目标帧数
+    method    : str
+        - 'sample'      均匀抽帧，只支持下采样
+        - 'linear'      仅对时间维做 1D 线性插值
+    """
+    T, C, H, W = video.shape
+    if T <= target_T:
+        return video  # 不做任何处理
+
+    # ---------- sample ----------
+    if method == "sample":
+        # 均匀抽帧
+        idx = torch.linspace(0, T - 1, target_T, device=video.device).round().long()
+        return video.index_select(0, idx)
+
+    # ---------- 插值 ----------
+    elif method == "linear":
+        x = video.permute(1, 2, 3, 0).contiguous()      # (C, H, W, T)
+        x = x.view(-1, 1, T)                            # (C*H*W, 1, T)
+        x = torch.nn.functional.interpolate(x, size=target_T, mode="linear", align_corners=False)  # (C*H*W, 1, target_T)
+        x = x.view(C, H, W, target_T).permute(3, 0, 1, 2).contiguous()  # (target_T, C, H, W)
+        return x
+
+
 class DataCollatorForSFTQwen3VL:
     def __init__(
         self,
         processor,
         mode="train",
+        video_size_t=16,
         image_size_h=512,
         image_size_w=512,
         max_length=2048,  # not used now
     ):
         self.processor = processor
         self.mode = mode
+        self.video_size_t = video_size_t
         self.image_size_h = image_size_h
         self.image_size_w = image_size_w
         self.max_length = max_length
@@ -135,17 +179,36 @@ class DataCollatorForSFTQwen3VL:
                 tokenize=False,
                 add_generation_prompt=False if self.mode == "train" else True,
             ))
-            image_inputs, video_inputs = process_vision_info(
-                example["messages"],
-                image_patch_size=self.processor.image_processor.patch_size,
-            )
-            if image_inputs is not None:
-                # images.extend(image_inputs)  # list: PIL.Image.Image, [W, H]
-                for image in image_inputs:
-                    image = image.resize((self.image_size_w, self.image_size_h))
-                    images.append(image)
-            if video_inputs is not None:
-                videos.extend(video_inputs)  # list: [T, 3, H, W], [0, 255]
+            # image_inputs, video_inputs = process_vision_info(
+            #     example["messages"],
+            #     image_patch_size=self.processor.image_processor.patch_size,
+            # )
+            # if image_inputs is not None:
+            #     # images.extend(image_inputs)  # list: PIL.Image.Image, [W, H]
+            #     for image in image_inputs:
+            #         image = image.resize((self.image_size_w, self.image_size_h))
+            #         images.append(image)
+            # if video_inputs is not None:
+            #     videos.extend(video_inputs)  # list: torch.tensor, [T, 3, H, W], [0, 255]
+            for message in example["messages"]:
+                for content in message["content"]:
+                    if content["type"] == "image":
+                        image = Image.open(content["image"]).convert("RGB")
+                        image = image.resize((self.image_size_w, self.image_size_h))
+                        images.append(image)
+                    elif content["type"] == "video":
+                        video, audio, info = read_video(content["video"])  # torch.tensor, [T, H, W, 3], [0, 255]
+                        video = video.permute(0, 3, 1, 2)  # [T, 3, H, W]
+                        video = temporal_resize(
+                            video=video.float(),
+                            target_T=self.video_size_t,
+                            method="sample",
+                        )
+                        video = F.resize(
+                            img=video,
+                            size=[self.image_size_h, self.image_size_w],
+                        )
+                        videos.append(video)
 
         if len(images) == 0:
             images = None
@@ -221,6 +284,7 @@ if __name__ == "__main__":
     data_collator = DataCollatorForSFTQwen3VL(
         processor=processor,
         mode="train",
+        video_size_t=script_args.video_size_t,
         image_size_h=script_args.image_size_h,
         image_size_w=script_args.image_size_w,
         max_length=training_args.max_length,
