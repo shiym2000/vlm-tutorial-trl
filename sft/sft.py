@@ -3,6 +3,8 @@ import re
 from dataclasses import dataclass, field
 from PIL import Image
 
+import nibabel as nib
+import numpy as np
 import torch
 import torchvision.transforms.functional as F
 from datasets import Dataset
@@ -86,14 +88,21 @@ class DataCollatorForSFTQwen3VL:
             for subcontent in subcontent_list:
                 if len(subcontent) == 0:
                     continue
-                if subcontent == "<image>":
+
+                if subcontent == "<image>":  # 2D image
                     message["content"].append({"type": "image", "image": example["images"][image_idx]})
                     image_idx = image_idx + 1
+
                 elif subcontent == "<video>":
-                    message["content"].append({"type": "video", "video": example["videos"][video_idx]})
+                    if ".nii.gz" in example["videos"][video_idx]:  # 3D medical image
+                        message["content"].append({"type": "video", "image3d": example["videos"][video_idx]})
+                    else:  # video
+                        message["content"].append({"type": "video", "video": example["videos"][video_idx]})
                     video_idx = video_idx + 1
-                else:
+
+                else:  # text
                     message["content"].append({"type": "text", "text": subcontent})
+
             messages.append(message)
 
         return {"messages": messages}
@@ -185,20 +194,45 @@ class DataCollatorForSFTQwen3VL:
                     if content["type"] == "image":
                         image = Image.open(content["image"]).convert("RGB")
                         image = image.resize((self.image_size_w, self.image_size_h))
-                        images.append(image)
-                    elif content["type"] == "video":
-                        video, audio, info = read_video(content["video"])  # torch.tensor, [T, H, W, 3], [0, 255]
+                        images.append(image)  # PIL.Image
+
+                    elif content["type"] == "video" and "video" in content:
+                        video, audio, info = read_video(content["video"])  # torch.tensor, [T, H, W, 3], 0-255
                         video = video.permute(0, 3, 1, 2)  # [T, 3, H, W]
                         video = self.temporal_resize(
                             video=video.float(),
                             target_T=self.video_size_t,
-                            method="linear",
+                            method="sample",
                         )
                         video = F.resize(
                             img=video,
                             size=[self.image_size_h, self.image_size_w],
                         )
-                        videos.append(video)
+                        videos.append(video)  # torch.tensor, [T, 3, H, W], 0-255
+
+                    elif content["type"] == "video" and "image3d" in content:
+                        nii = nib.load(content["image3d"])
+                        image3d = nii.get_fdata()  # (X, Y, Z) == (W, H, T)
+
+                        # normalize to 0-255
+                        HU_MIN, HU_MAX = -1000, 1000
+                        image3d = np.clip(image3d, HU_MIN, HU_MAX)
+                        image3d = (image3d - HU_MIN) / (HU_MAX - HU_MIN) * 255
+
+                        # resize
+                        image3d = torch.from_numpy(image3d).permute(2, 1, 0)  # (T, H, W)
+                        image3d = image3d.unsqueeze(1).float()  # (T, 1, H, W)
+                        image3d = image3d.repeat(1, 3, 1, 1)  # (T, 3, H, W)
+                        image3d = self.temporal_resize(
+                            video=image3d,
+                            target_T=self.video_size_t,
+                            method="linear",
+                        )
+                        image3d = F.resize(
+                            img=image3d,
+                            size=[self.image_size_h, self.image_size_w],
+                        )
+                        videos.append(image3d)  # torch.tensor, [T, 3, H, W], 0-255
 
         if len(images) == 0:
             images = None

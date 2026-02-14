@@ -21,6 +21,7 @@ pip install peft
 pip install transformers==4.57.0
 pip install torch==2.7.1 torchvision==0.22.1 torchaudio==2.7.1 --index-url https://download.pytorch.org/whl/cu118
 pip install flash-attn --no-build-isolation  # bug
+pip install nibabel
 ```
 
 ## :rocket: Getting Started
