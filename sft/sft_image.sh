@@ -13,6 +13,7 @@ accelerate launch \
     --tune_connector full \
     --tune_llm full \
     --output_dir work_dirs/sft-image \
+    --remove_unused_columns False \
     --num_train_epochs 1 \
     --per_device_train_batch_size 2 \
     --gradient_accumulation_steps 1 \
@@ -57,6 +58,7 @@ accelerate launch \
 #     --tune_encoder full \
 #     --tune_connector full \
 #     --tune_llm lora \
+#     --remove_unused_columns False \
 #     --output_dir work_dirs/sft-image-lora \
 #     --num_train_epochs 1 \
 #     --per_device_train_batch_size 2 \
