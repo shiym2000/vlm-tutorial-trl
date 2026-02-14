@@ -1,4 +1,4 @@
-# # ~4GB
+# ~4GB
 # export CUDA_VISIBLE_DEVICES=0
 # python infer.py \
 #     --model_name_or_path Qwen/Qwen3-VL-2B-Instruct \
@@ -6,8 +6,8 @@
 #     --attn_implementation sdpa \
 #     --dataset_name dev/sft_image_test.json \
 #     --output_path dev/sft_image_test_inferred.json \
-#     --image_size_h 256 \
-#     --image_size_w 256 \
+#     --image_size_h 512 \
+#     --image_size_w 512 \
 #     --max_length 2048 \
 #     --max_new_tokens 512 \
 #     --num_beams 1 \

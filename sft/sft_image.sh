@@ -38,7 +38,7 @@ accelerate launch \
     --greater_is_better False
     # --resume_from_checkpoint work_dirs/sft-image/checkpoint-50
 
-# # ZeRO2: ~10GB*4
+# ZeRO2: ~10GB*4
 # export CUDA_VISIBLE_DEVICES=0,1,2,3
 # accelerate launch \
 #     --config_file deepspeed_zero2.yaml \
