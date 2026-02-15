@@ -1,0 +1,17 @@
+[
+    {
+        "messages": [
+            {
+                "role": "user",
+                "content": "<video>\nWould you mind generating the radiology report for the specified chest CT scan?"
+            },
+            {
+                "role": "assistant",
+                "content": "Findings: Trachea, both main bronchi are open. Mediastinal main vascular structures, heart contour, size are normal. Thoracic aorta diameter is normal. Pericardial effusion-thickening was not observed. Thoracic esophageal calibration was normal and no significant tumoral wall thickening was detected. No enlarged lymph nodes in prevascular, pre-paratracheal, subcarinal or bilateral hilar-axillary pathological dimensions were detected. When examined in the lung parenchyma window; A few millimetric nonspecific nodules and mild recessions are observed in the upper lobe and lower lobe of the right lung. Aeration of both lung parenchyma is normal and no infiltrative lesion is detected in the lung parenchyma. Pleural effusion-thickening was not detected. Upper abdominal organs included in the sections are normal. No space-occupying lesion was detected in the liver that entered the cross-sectional area. Bilateral adrenal glands were normal and no space-occupying lesion was detected. Bone structures in the study area are natural. Vertebral corpus heights are preserved. Impression:  A few millimetric nonspecific nodules and slight recessions in the upper lobe and lower lobe of the right lung."
+            }
+        ],
+        "images": [
+            "path/to/image3d.nii.gz"
+        ]
+    }
+]

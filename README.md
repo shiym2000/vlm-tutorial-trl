@@ -31,11 +31,13 @@ pip install nibabel
 ``` bash
 cd sft
 
-# sft (data format: examples/data_sft_image_train.json)
-bash sft_image.sh
+# 1. image
+bash sft_image.sh  # sft (data format: examples/data_sft_image_train.json)
+bash infer_image.sh  # infer (data format: examples/data_sft_image_test.json)
 
-# infer (data format: examples/data_sft_image_test.json)
-bash infer_image.sh
+# 2. 3D medical image
+bash sft_image3d.sh  # sft (data format: examples/data_sft_image3d_train.json)
+bash infer_image3d.sh  # infer (data format: examples/data_sft_image3d_test.json)
 ```
 
 ### 2. Direct Preference Optimization (DPO)
