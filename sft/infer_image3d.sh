@@ -1,4 +1,4 @@
-MODEL_PATH=work_dirs/sft-image3d-lora/checkpoint-80
+MODEL_PATH=work_dirs/sft-image3d-lora/checkpoint-50-merged
 
 export CUDA_VISIBLE_DEVICES=0
 python infer.py \

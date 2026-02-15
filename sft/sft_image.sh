@@ -83,3 +83,11 @@ accelerate launch \
 #     --metric_for_best_model eval_loss \
 #     --greater_is_better False
 #     # --resume_from_checkpoint work_dirs/sft-image-lora/checkpoint-50
+
+# export CUDA_VISIBLE_DEVICES=0
+# python merge_lora.py \
+#     --model_name_or_path Qwen/Qwen3-VL-2B-Instruct \
+#     --dtype bfloat16 \
+#     --attn_implementation sdpa \
+#     --lora_weights_path work_dirs/sft-image-lora/checkpoint-50 \
+#     --merged_model_path work_dirs/sft-image-lora/checkpoint-50-merged
