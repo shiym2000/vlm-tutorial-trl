@@ -59,7 +59,7 @@ class DataCollatorForSFTQwen3VL:
         video_size_t=16,
         image_size_h=512,
         image_size_w=512,
-        max_length=2048,  # not used now
+        max_length=4096,  # not used now
     ):
         self.processor = processor
         self.mode = mode
