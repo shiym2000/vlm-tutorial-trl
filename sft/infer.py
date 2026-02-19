@@ -4,8 +4,8 @@ import os
 from tqdm import tqdm
 
 from transformers import (
+    AutoModelForImageTextToText,
     AutoProcessor,
-    Qwen3VLForConditionalGeneration,
     # TextStreamer,
 )
 
@@ -35,7 +35,7 @@ if __name__ == "__main__":
         attn_implementation=args.attn_implementation,
         device_map="cuda:0",
     )
-    model = Qwen3VLForConditionalGeneration.from_pretrained(
+    model = AutoModelForImageTextToText.from_pretrained(
         args.model_name_or_path,
         **model_kwargs,
     )

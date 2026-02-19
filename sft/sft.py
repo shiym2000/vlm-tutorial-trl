@@ -10,8 +10,8 @@ import torchvision.transforms.functional as F
 from datasets import Dataset
 from torchvision.io import read_video
 from transformers import (
+    AutoModelForImageTextToText,
     AutoProcessor,
-    Qwen3VLForConditionalGeneration,
 )
 from trl import (
     ModelConfig,
@@ -289,7 +289,7 @@ if __name__ == "__main__":
         dtype=model_args.dtype,
         attn_implementation=model_args.attn_implementation,
     )
-    model = Qwen3VLForConditionalGeneration.from_pretrained(
+    model = AutoModelForImageTextToText.from_pretrained(
         model_args.model_name_or_path,
         **model_kwargs,
     )
@@ -332,13 +332,15 @@ if __name__ == "__main__":
             param.requires_grad = True
         for param in trainer.model.model.visual.merger.parameters():
             param.requires_grad = False
-        for param in trainer.model.model.visual.deepstack_merger_list.parameters():
-            param.requires_grad = False
+        if hasattr(trainer.model.model.visual, "deepstack_merger_list"):
+            for param in trainer.model.model.visual.deepstack_merger_list.parameters():
+                param.requires_grad = False
     if script_args.tune_connector == "full":
         for param in trainer.model.model.visual.merger.parameters():
             param.requires_grad = True
-        for param in trainer.model.model.visual.deepstack_merger_list.parameters():
-            param.requires_grad = True
+        if hasattr(trainer.model.model.visual, "deepstack_merger_list"):
+            for param in trainer.model.model.visual.deepstack_merger_list.parameters():
+                param.requires_grad = True
     if script_args.tune_llm == "full":
         for param in trainer.model.model.language_model.parameters():
             param.requires_grad = True
