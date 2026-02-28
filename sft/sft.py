@@ -238,6 +238,13 @@ class DataCollatorForSFTQwen3VL:
             images = None
         if len(videos) == 0:
             videos = None
+        if self.mode == "vllm":
+            return {
+                "texts": texts,
+                "images": images,
+                "videos": videos,
+            }
+
         batch_processed = self.processor(
             text=texts,
             images=images,
@@ -245,7 +252,7 @@ class DataCollatorForSFTQwen3VL:
             padding=True,
             return_tensors="pt",
         )  # input_ids, attention_mask, pixel_values, image_grid_thw
-        if self.mode != "train":
+        if self.mode == "infer":
             return batch_processed
 
         labels = torch.full_like(batch_processed["input_ids"], -100)
