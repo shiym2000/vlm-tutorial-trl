@@ -5,7 +5,7 @@ accelerate launch \
     sft.py \
     --model_name_or_path Qwen/Qwen3-VL-2B-Instruct \
     --dtype bfloat16 \
-    --attn_implementation sdpa \
+    --attn_implementation flash_attention_2 \
     --dataset_name dev/sft_image_train.json \
     --image_size_h 512 \
     --image_size_w 512 \
@@ -45,7 +45,7 @@ accelerate launch \
 #     sft.py \
 #     --model_name_or_path Qwen/Qwen3-VL-2B-Instruct \
 #     --dtype bfloat16 \
-#     --attn_implementation sdpa \
+#     --attn_implementation flash_attention_2 \
 #     --use_peft True \
 #     --lora_r 8 \
 #     --lora_alpha 16 \
@@ -55,8 +55,8 @@ accelerate launch \
 #     --dataset_name dev/sft_image_train.json \
 #     --image_size_h 512 \
 #     --image_size_w 512 \
-#     --tune_encoder full \
-#     --tune_connector full \
+#     --tune_encoder freeze \
+#     --tune_connector freeze \
 #     --tune_llm lora \
 #     --remove_unused_columns False \
 #     --output_dir work_dirs/sft-image-lora \
@@ -88,6 +88,6 @@ accelerate launch \
 # python merge_lora.py \
 #     --model_name_or_path Qwen/Qwen3-VL-2B-Instruct \
 #     --dtype bfloat16 \
-#     --attn_implementation sdpa \
+#     --attn_implementation flash_attention_2 \
 #     --lora_weights_path work_dirs/sft-image-lora/checkpoint-50 \
 #     --merged_model_path work_dirs/sft-image-lora/checkpoint-50-merged

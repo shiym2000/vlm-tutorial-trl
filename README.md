@@ -12,16 +12,27 @@ cd vlm-tutorial-trl
 # 2. create a conda environment, activate it and install packages
 conda create -n trl python=3.10
 conda activate trl
-pip install trl
+pip install torch==2.7.1 torchvision==0.22.1 torchaudio==2.7.1 --index-url https://download.pytorch.org/whl/cu118
+pip install transformers==4.57.0
+pip install trl==0.24.0
 pip install deepspeed
 pip install pillow
 pip install tensorboard
 pip install qwen-vl-utils
 pip install peft
-pip install transformers==4.57.0
-pip install torch==2.7.1 torchvision==0.22.1 torchaudio==2.7.1 --index-url https://download.pytorch.org/whl/cu118
-pip install flash-attn --no-build-isolation  # bug
+pip install vllm==0.11.0
+pip install --no-build-isolation --no-cache-dir flash-attn==2.8.3
 pip install nibabel
+```
+
+To train a 3D medical VLM based on Qwen3-VL, following modifications are required:
+
+``` python
+# envs/trl/lib/python3.10/site-packages/transformers/models/qwen3_vl/processing_qwen3_vl.py (L208)
+metadata.fps = 2 if metadata.fps is None else metadata.fps
+
+# envs/trl/lib/python3.10/site-packages/transformers/models/qwen3_vl/video_processing_qwen3_vl.py (L161)
+metadata.fps = 2
 ```
 
 ## :rocket: Getting Started

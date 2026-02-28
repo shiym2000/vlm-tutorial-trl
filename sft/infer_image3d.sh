@@ -4,7 +4,7 @@ export CUDA_VISIBLE_DEVICES=0
 python infer.py \
     --model_name_or_path $MODEL_PATH \
     --dtype bfloat16 \
-    --attn_implementation sdpa \
+    --attn_implementation flash_attention_2 \
     --dataset_name dev/sft_image3d_test.json \
     --output_path $MODEL_PATH/infer/output.json \
     --video_size_t 16 \
