@@ -15,6 +15,8 @@ accelerate launch \
     --video_size_t 16 \
     --image_size_h 512 \
     --image_size_w 512 \
+    --window_center 0 \
+    --window_width 2000 \
     --tune_encoder freeze \
     --tune_connector freeze \
     --tune_llm lora \

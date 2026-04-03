@@ -37,6 +37,14 @@ class ScriptArgumentsForSFT(ScriptArguments):
         default=512,
         metadata={"help": "The width to resize input images/videos to."},
     )
+    window_center: int = field(
+        default=None,
+        metadata={"help": "The window center for normalizing 3D medical images. If not set, no normalization will be applied."},
+    )
+    window_width: int = field(
+        default=None,
+        metadata={"help": "The window width for normalizing 3D medical images. If not set, no normalization will be applied."},
+    )
     tune_encoder: str = field(
         default="freeze",
         metadata={"help": "The tuning strategy for the vision encoder. It can be `freeze` or `full`."},
@@ -60,6 +68,8 @@ class DataCollatorForSFTQwen3VL:
         image_size_h=512,
         image_size_w=512,
         max_length=4096,  # not used now
+        window_center=None,
+        window_width=None,
     ):
         self.processor = processor
         self.mode = mode
@@ -67,6 +77,8 @@ class DataCollatorForSFTQwen3VL:
         self.image_size_h = image_size_h
         self.image_size_w = image_size_w
         self.max_length = max_length
+        self.window_center = window_center
+        self.window_width = window_width
 
     @staticmethod
     def format_example_swift2trl(example):
@@ -215,9 +227,11 @@ class DataCollatorForSFTQwen3VL:
                         image3d = nii.get_fdata()  # (X, Y, Z) == (W, H, T)
 
                         # normalize to 0-255
-                        HU_MIN, HU_MAX = -1000, 1000
-                        image3d = np.clip(image3d, HU_MIN, HU_MAX)
-                        image3d = (image3d - HU_MIN) / (HU_MAX - HU_MIN) * 255
+                        if self.window_center is not None and self.window_width is not None:
+                            hu_min = self.window_center - self.window_width // 2
+                            hu_max = self.window_center + self.window_width // 2
+                            image3d = np.clip(image3d, hu_min, hu_max)
+                            image3d = (image3d - hu_min) / (hu_max - hu_min) * 255
 
                         # resize
                         image3d = torch.from_numpy(image3d).permute(2, 1, 0)  # (T, H, W)
@@ -319,6 +333,8 @@ if __name__ == "__main__":
         image_size_h=script_args.image_size_h,
         image_size_w=script_args.image_size_w,
         max_length=training_args.max_length,
+        window_center=script_args.window_center,
+        window_width=script_args.window_width,
     )
 
     # Start training

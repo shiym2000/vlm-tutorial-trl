@@ -10,6 +10,8 @@ MODEL_PATH=work_dirs/sft-image3d-lora/checkpoint-50-merged
 #     --video_size_t 16 \
 #     --image_size_h 512 \
 #     --image_size_w 512 \
+#     --window_center 0 \
+#     --window_width 2000 \
 #     --max_length 4096 \
 #     --max_new_tokens 512 \
 #     --num_beams 1 \
@@ -26,6 +28,8 @@ python infer_vllm.py \
     --video_size_t 16 \
     --image_size_h 512 \
     --image_size_w 512 \
+    --window_center 0 \
+    --window_width 2000 \
     --max_length 4096 \
     --max_new_tokens 512 \
     --num_beams 1 \

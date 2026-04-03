@@ -22,6 +22,8 @@ if __name__ == "__main__":
     parser.add_argument("--video_size_t", type=int, default=None)
     parser.add_argument("--image_size_h", type=int, default=None)
     parser.add_argument("--image_size_w", type=int, default=None)
+    parser.add_argument("--window_center", type=int, default=None)
+    parser.add_argument("--window_width", type=int, default=None)
     parser.add_argument("--max_length", type=int, default=None)
     parser.add_argument("--max_new_tokens", type=int, default=None)
     parser.add_argument("--num_beams", type=int, default=None)
@@ -58,6 +60,8 @@ if __name__ == "__main__":
         image_size_h=args.image_size_h,
         image_size_w=args.image_size_w,
         max_length=args.max_length,
+        window_center=args.window_center,
+        window_width=args.window_width,
     )
 
     # Preprocess data
