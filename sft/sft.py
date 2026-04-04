@@ -67,7 +67,7 @@ class DataCollatorForSFTQwen3VL:
         video_size_t=16,
         image_size_h=512,
         image_size_w=512,
-        max_length=4096,  # not used now
+        max_length=None,
         window_center=None,
         window_width=None,
     ):
@@ -297,6 +297,13 @@ class DataCollatorForSFTQwen3VL:
 
         # shift happens in transformers/loss/loss_utils/ForCausalLMLoss
         batch_processed["labels"] = labels
+
+        # truncate to max_length
+        if self.max_length is not None:
+            batch_processed["input_ids"] = batch_processed["input_ids"][:, :self.max_length]
+            batch_processed["attention_mask"] = batch_processed["attention_mask"][:, :self.max_length]
+            batch_processed["labels"] = batch_processed["labels"][:, :self.max_length]
+
         return batch_processed
 
 
