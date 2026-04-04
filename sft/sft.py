@@ -290,8 +290,10 @@ class DataCollatorForSFTQwen3VL:
         labels[labels == self.processor.tokenizer.pad_token_id] = -100
 
         # mask vision tokens
-        # <|vision_start|> <|vision_end|> <|image_pad|> <|video_pad|>
-        vision_token_ids = [151652, 151653, 151655, 151656]
+        vision_token_strs = ["<|vision_start|>", "<|vision_end|>", "<|image_pad|>", "<|video_pad|>"]
+        vision_token_ids = []
+        for vision_token_str in vision_token_strs:
+            vision_token_ids.extend(self.processor.tokenizer.encode(vision_token_str))
         for vision_token_id in vision_token_ids:
             labels[labels == vision_token_id] = -100
 
