@@ -199,6 +199,7 @@ class DataCollatorForSFTQwen3VL:
                 example["messages"],
                 tokenize=False,
                 add_generation_prompt=False if self.mode == "train" else True,
+                # enable_thinking=False,
             ))
 
             for message in example["messages"]:
